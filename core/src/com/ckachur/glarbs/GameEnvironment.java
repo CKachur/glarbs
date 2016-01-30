@@ -99,11 +99,9 @@ public final class GameEnvironment {
 		float mapHeight = mainMapLayer.getHeight();
 
 
-		float camX = Math.max(7, Math.min(mapWidth - 7, devGuy.getRenderPoint().x));
+		float camX = Math.max(6.75f, Math.min(mapWidth - 6.75f, devGuy.getRenderPoint().x));
 		float camY = Math.max(5, Math.min(mapHeight - 5, devGuy.getRenderPoint().y));
-
-		System.out.println(camX + " " + camY + ", " + devGuy.getRenderPoint().x + " " + devGuy.getRenderPoint().y);
-
+		
 		camera.position.set(new Vector2(camX, camY), 0);
 		camera.update();
 	}
