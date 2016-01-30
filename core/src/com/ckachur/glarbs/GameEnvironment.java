@@ -3,6 +3,8 @@ package com.ckachur.glarbs;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,6 +27,7 @@ public final class GameEnvironment {
 	private String lastPopupName;
 	private GameCharacterKeyboardController playerController;
 	private MessagePopupListener messagePopupListener;
+	private Sound doorSound;
 	
 	public GameEnvironment(MessagePopupListener messagePopupListener) {
 		this.messagePopupListener = messagePopupListener;
@@ -34,6 +37,8 @@ public final class GameEnvironment {
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1/TILESIZE);
 		playerController = new GameCharacterKeyboardController();
 		devGuy = new GameCharacter(new Texture("guySprite.png"), new Vector2(5, 95), playerController);
+
+		doorSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dooropen.wav"));
 	}
 
 	public void render(OrthographicCamera camera) {
@@ -54,6 +59,7 @@ public final class GameEnvironment {
 			Object typeProperty = object.getProperties().get("type");
 			if( typeProperty.equals("levelTransition") && devGuy.intersects(object) ) {
 				// load the target level
+				doorSound.play();
 				map = mapLoader.load(object.getProperties().get("target").toString());
 				mapRenderer = new OrthogonalTiledMapRenderer(map, 1/TILESIZE);
 				devGuy.setPoint(

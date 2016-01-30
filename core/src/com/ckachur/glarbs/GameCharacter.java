@@ -1,6 +1,7 @@
 package com.ckachur.glarbs;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -23,6 +24,8 @@ public final class GameCharacter {
 	private TextureRegion[][] spriteSheet;
 	private float stateTime;
 	private GameCharacterController controller;
+	private Sound bumpSound;
+	private float bumpedlastTime = 0;
 
 	public GameCharacter(Texture texture, Vector2 point, GameCharacterController controller) {
 		this.controller = controller;
@@ -33,6 +36,8 @@ public final class GameCharacter {
 		currentFrame = spriteSheet[1][0];
 		this.point = point;
 		renderPoint = new Vector2(point);
+
+		bumpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bump.wav"));
 	}
 
 	public void render(SpriteBatch batch) {
@@ -62,6 +67,7 @@ public final class GameCharacter {
 	}
 	
 	public void update(TiledMap map) {
+		// While we are moving we don't look at new movements.
 		if( isMoving ) {
 			Vector2 distanceToGo = new Vector2(point.x - renderPoint.x, point.y - renderPoint.y);
 			renderPoint.add(distanceToGo.scl(1/(distanceToGo.len()*15)));
@@ -76,11 +82,22 @@ public final class GameCharacter {
 				facing = nextDirection;
 				Vector2 step = facing.getStep();
 				Vector2 newPoint = new Vector2(point.x + step.x, point.y + step.y);
+
+				//Move the player but keep from moving outside the map and into objects.
 				TiledMapTileLayer mainLayer = (TiledMapTileLayer)map.getLayers().get(PATHING_LAYER_NAME);
 				Cell cell = mainLayer.getCell((int)newPoint.x, (int)newPoint.y);
-				if( newPoint.x >= 0 && newPoint.x < mainLayer.getWidth() && newPoint.y >= 0 && newPoint.y < mainLayer.getHeight() && (cell == null || cell.getTile().getId() == 1) ) {
+				if( newPoint.x >= 0 && newPoint.x < mainLayer.getWidth() &&
+					newPoint.y >= 0 && newPoint.y < mainLayer.getHeight() &&
+					(cell == null || cell.getTile().getId() == 1) ) {
 					point = newPoint;
 					isMoving = true;
+				} else {
+					// If we bump a new direction play bump sound.
+
+					if (bumpedlastTime + 0.2f < stateTime) {
+						bumpSound.play();
+						bumpedlastTime = stateTime;
+					}
 				}
 			}
 		}
