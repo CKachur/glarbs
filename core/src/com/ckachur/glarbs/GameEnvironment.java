@@ -14,9 +14,11 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public final class GameEnvironment {
 	public static final float TILESIZE = 16f;
@@ -91,7 +93,18 @@ public final class GameEnvironment {
 				lastPopupName = object.getName();
 			}
 		}
-		camera.position.set(devGuy.getRenderPoint(), 0);
+		//Center on the player, but do not show the blank sides.
+		TiledMapTileLayer mainMapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		float mapWidth = mainMapLayer.getWidth();
+		float mapHeight = mainMapLayer.getHeight();
+
+
+		float camX = Math.max(7, Math.min(mapWidth - 7, devGuy.getRenderPoint().x));
+		float camY = Math.max(5, Math.min(mapHeight - 5, devGuy.getRenderPoint().y));
+
+		System.out.println(camX + " " + camY + ", " + devGuy.getRenderPoint().x + " " + devGuy.getRenderPoint().y);
+
+		camera.position.set(new Vector2(camX, camY), 0);
 		camera.update();
 	}
 	
