@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="6">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="16" tileheight="16" nextobjectid="11">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
   <image source="tiles/pokemon.png" width="343" height="410"/>
  </tileset>
@@ -244,8 +244,23 @@
   </object>
   <object id="4" name="IntroText1" type="messagePopup" x="253.333" y="123" width="54.6667" height="73.3333">
    <properties>
-    <property name="message" value="Welcome to the game! This is a default popup text."/>
+    <property name="message" value="A dark shadow moves somewhere in the distance.\nYou hear a whisper from the beyond, telling you that you're\nonly playing a test framework and not a real game.\n\nSomething feels... unfinished."/>
+    <property name="oneTime" value="true"/>
    </properties>
+  </object>
+  <object id="9" name="Sally Introductus" type="npc" x="160.333" y="128.333" width="15.3333" height="15.3333">
+   <properties>
+    <property name="spriteSheet" value="longHairWoman.png"/>
+    <property name="talkText" value="Hello! Welcome to the best game of your life: Glarbs!\nGlarbs is the game for you. You should go inside POKE/GYM and\nretrieve a book before you leave.\n\nYou can press SPACE to finish a talk sequence with someone like me."/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="10" name="Lapras" type="npc" x="16.3333" y="16.6667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="action" value="fight"/>
+    <property name="spriteSheet" value="lapras.png"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
 </map>

@@ -7,7 +7,7 @@ public class GameCharacterKeyboardController implements GameCharacterController 
 	private boolean enabled = true;
 
 	@Override
-	public Facing getNextDirection() {
+	public Facing getNextDirection(GameCharacter character) {
 		if( !enabled ) {
 			return null;
 		}
@@ -25,5 +25,10 @@ public class GameCharacterKeyboardController implements GameCharacterController 
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	@Override
+	public boolean wantsMove(GameCharacter character) {
+		return enabled;
 	}
 }

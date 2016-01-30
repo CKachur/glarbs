@@ -1,5 +1,6 @@
 package com.ckachur.glarbs;
 
-public interface MessagePopupListener {
+public interface GameEventsListener {
 	void showMessagePopup(String message);
+	void enterBattle();
 }

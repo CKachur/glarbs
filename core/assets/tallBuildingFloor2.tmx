@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="10" tilewidth="16" tileheight="16" nextobjectid="2">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="10" tilewidth="16" tileheight="16" nextobjectid="3">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
   <image source="tiles/pokemon.png" width="343" height="410"/>
  </tileset>
@@ -42,6 +42,14 @@
     <property name="targetY" value="9"/>
     <property name="type" value="levelTransition"/>
    </properties>
+  </object>
+  <object id="2" name="Samwise Reinfeld" type="npc" x="16.5834" y="112.833" width="15.3333" height="15.3333">
+   <properties>
+    <property name="lockFacing" value="up"/>
+    <property name="spriteSheet" value="dullGuy.png"/>
+    <property name="talkText" value="I just can't figure it out, why am I up here instead of watching the\nSouth Park with my wife. What was I doing here again?\n\nBut I thought it was so important..."/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
 </map>

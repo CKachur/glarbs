@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="12" height="9" tilewidth="16" tileheight="16" nextobjectid="2">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="12" height="9" tilewidth="16" tileheight="16" nextobjectid="4">
  <tileset firstgid="1" name="pokemon2" tilewidth="16" tileheight="16" tilecount="6072" columns="88">
   <image source="tiles/pokemon2.png" width="1408" height="1104"/>
  </tileset>
@@ -40,6 +40,19 @@
     <property name="targetY" value="92"/>
     <property name="type" value="levelTransition"/>
    </properties>
+  </object>
+  <object id="2" name="Angry Face" type="npc" x="96" y="32.3333" width="15.3333" height="15.3333">
+   <properties>
+    <property name="spriteSheet" value="dullGuy.png"/>
+    <property name="talkText" value="Get outta my house!\nHave you any idea the effort it took to steal all these sprites from\nthe newer gens? Just look at us. We don't fit here!\n\nBut now this house is mine, hehe..."/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="3" name="Sign" type="npc" x="48.6667" y="80" width="15.3333" height="15.3333">
+   <properties>
+    <property name="talkText" value="The sign says something about the owner of the house, but\nit's crossed out and has ANGRY FACE scrawled across\nit in red pen."/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
 </map>
