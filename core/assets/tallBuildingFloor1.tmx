@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="10" tilewidth="16" tileheight="16" nextobjectid="4">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="10" tilewidth="16" tileheight="16" nextobjectid="6">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
   <image source="tiles/pokemon.png" width="343" height="410"/>
  </tileset>
@@ -50,6 +50,20 @@
     <property name="targetY" value="0"/>
     <property name="type" value="levelTransition"/>
    </properties>
+  </object>
+  <object id="4" name="Jill Reinfeld" type="npc" x="0.33335" y="48.3333" width="15.3333" height="15.3333">
+   <properties>
+    <property name="lockFacing" value="up"/>
+    <property name="spriteSheet" value="longHairWoman.png"/>
+    <property name="talkText" value="Shush! I'm busy watching South Park!"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="5" name="COMPUTER" type="npc" x="112" y="17.6667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="talkText" value="The machine clicks on, and a loud sound comes out:\n\n C A R O L I N E    D E L E T E D\n\nYou're not sure what just happened."/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
 </map>
