@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="12" height="9" tilewidth="16" tileheight="16" nextobjectid="2">
+ <tileset firstgid="1" name="pokemon2" tilewidth="16" tileheight="16" tilecount="6072" columns="88">
+  <image source="tiles/pokemon2.png" width="1408" height="1104"/>
+ </tileset>
+ <tileset firstgid="6073" name="pathing" tilewidth="16" tileheight="16" tilecount="4" columns="2">
+  <image source="tiles/pathing.png" width="32" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="12" height="9">
+  <data encoding="csv">
+115,115,115,115,115,115,115,115,115,115,115,115,
+1693,1693,207,207,207,207,207,207,207,207,1693,1693,
+1693,207,207,207,207,2582,2754,2584,207,207,207,1693,
+207,207,207,207,207,207,207,207,207,207,207,207,
+207,207,207,207,207,207,207,207,207,207,207,207,
+207,207,207,5479,207,207,207,207,1692,207,207,207,
+1693,207,207,207,207,207,207,207,207,207,207,1693,
+1693,1693,207,207,207,207,207,207,207,207,1693,1693,
+0,0,0,468,468,468,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer name="Pathing" width="12" height="9">
+  <data encoding="csv">
+6074,6074,6074,6074,6074,6074,6074,6074,6074,6074,6074,6074,
+6074,6074,0,0,0,0,0,0,0,0,6074,6074,
+6074,0,0,0,0,0,0,0,0,0,0,6074,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,6074,0,0,0,0,6074,0,0,0,
+6074,0,0,0,0,0,0,0,0,0,0,6074,
+6074,6074,0,0,0,0,0,0,0,0,6074,6074,
+6075,6075,6075,0,0,0,6075,6075,6075,6075,6075,6075
+</data>
+ </layer>
+ <objectgroup name="Objects">
+  <object id="1" x="43" y="123.5" width="57" height="23">
+   <properties>
+    <property name="target" value="pokeMon.tmx"/>
+    <property name="targetX" value="17"/>
+    <property name="targetY" value="92"/>
+    <property name="type" value="levelTransition"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

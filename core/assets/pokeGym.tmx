@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="8" height="12" tilewidth="16" tileheight="16" nextobjectid="3">
+ <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
+  <image source="tiles/pokemon.png" width="343" height="410"/>
+ </tileset>
+ <tileset firstgid="481" name="pathing" tilewidth="16" tileheight="16" tilecount="4" columns="2">
+  <image source="tiles/pathing.png" width="32" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="8" height="12">
+  <data encoding="csv">
+307,307,307,307,307,307,307,307,
+307,307,307,307,307,307,309,269,
+268,268,268,268,268,268,329,289,
+268,292,268,268,268,268,268,268,
+268,312,268,268,268,268,268,268,
+268,268,268,268,268,268,268,268,
+268,268,268,268,268,270,271,268,
+268,268,268,268,268,290,291,268,
+268,268,268,268,268,310,311,268,
+268,268,268,268,268,268,268,268,
+268,268,268,268,268,268,268,268,
+0,0,0,347,347,0,0,0
+</data>
+ </layer>
+ <layer name="Pathing" width="8" height="12">
+  <data encoding="csv">
+482,482,482,482,482,482,482,482,
+482,482,482,482,482,482,482,482,
+0,0,0,0,0,0,482,482,
+0,482,0,0,0,0,0,0,
+0,482,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,482,482,0,
+0,0,0,0,0,482,482,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,
+483,483,483,0,0,483,483,483
+</data>
+ </layer>
+ <objectgroup name="Objects">
+  <object id="1" x="44.5" y="172" width="40" height="23">
+   <properties>
+    <property name="target" value="pokeMon.tmx"/>
+    <property name="targetX" value="12"/>
+    <property name="targetY" value="92"/>
+    <property name="type" value="levelTransition"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

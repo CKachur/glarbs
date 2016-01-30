@@ -5,29 +5,26 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class Glarbs extends ApplicationAdapter {
-	private TmxMapLoader mapLoader;
-	private TiledMap map;
+public class Glarbs extends ApplicationAdapter implements MessagePopupListener {
 	private OrthographicCamera camera;
 	private Viewport viewport;
-	private OrthogonalTiledMapRenderer mapRenderer;
-	private SpriteBatch spriteBatch;
-	private DevGuy devGuy;
+	private GameEnvironment gameEnvironment;
+	private OrthographicCamera hudCamera;
+	private Viewport hudViewport;
+	private String currentMessage = null;
+	private BitmapFont font;
+	private GlyphLayout glyphLayout;
+	private SpriteBatch textSpriteBatch;
 	
 	@Override
 	public void create () {
-		spriteBatch = new SpriteBatch();
-		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("pokeMon.tmx");
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 30, 50);
 		viewport = new ExtendViewport(10, 10, camera);
@@ -35,42 +32,43 @@ public class Glarbs extends ApplicationAdapter {
 		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(5, 100-5, 0);
 		camera.update();
-		mapRenderer = new OrthogonalTiledMapRenderer(map, 1/16f);
-		devGuy = new DevGuy(new Texture("guy.png"), new Vector2(5,95));
+		
+
+		hudCamera = new OrthographicCamera();
+		hudCamera.setToOrtho(false, 640, 480);
+		hudViewport = new FitViewport(640, 480, camera);
+		hudViewport.apply();
+		hudViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		//mapRenderer.setView(camera);
+		gameEnvironment = new GameEnvironment(this);
+		
+		font = new BitmapFont();
+		textSpriteBatch = new SpriteBatch();
+		glyphLayout = new GlyphLayout();
 	}
 
 	@Override
 	public void render () {
-		processInput();
+		gameEnvironment.update(camera);
+		if( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
+			currentMessage = null;
+			gameEnvironment.enableControls();
+		}
 		
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		spriteBatch.setProjectionMatrix(camera.combined);
-		mapRenderer.setView(camera);
-		mapRenderer.render();
-		spriteBatch.begin();
-		devGuy.render(spriteBatch);
-		spriteBatch.end();
-	}
-	
-	private void processInput() {
-		if( Gdx.input.isKeyPressed(Input.Keys.DOWN) ) {
-			devGuy.translate(0, -0.05f);
+		viewport.apply();
+		gameEnvironment.render(camera);
+		
+
+		hudViewport.apply();
+		if( currentMessage != null ) {
+			textSpriteBatch.setProjectionMatrix(hudCamera.combined);
+			textSpriteBatch.begin();
+			glyphLayout.setText(font, currentMessage);
+			font.draw(textSpriteBatch, currentMessage, (hudViewport.getWorldWidth()-glyphLayout.width)/2, font.getLineHeight()*3);
+			textSpriteBatch.end();
 		}
-		else if( Gdx.input.isKeyPressed(Input.Keys.LEFT) ) {
-			devGuy.translate(-0.05f, 0);
-		}
-		else if( Gdx.input.isKeyPressed(Input.Keys.UP) ) {
-			devGuy.translate(0, 0.05f);
-		}
-		else if( Gdx.input.isKeyPressed(Input.Keys.RIGHT) ) {
-			devGuy.translate(0.05f, 0);
-		} else {
-			devGuy.moveUntilGrid();
-		}
-		camera.position.set(devGuy.getPoint(), 0);
-		camera.update();
 	}
 
 	@Override
@@ -78,5 +76,13 @@ public class Glarbs extends ApplicationAdapter {
 		super.resize(width, height);
 		viewport.update(width, height);
 		camera.update();
+		hudViewport.update(width, height);
+		hudCamera.update();
+	}
+
+	@Override
+	public void showMessagePopup(String message) {
+		gameEnvironment.disableControls();
+		currentMessage = message;
 	}
 }
