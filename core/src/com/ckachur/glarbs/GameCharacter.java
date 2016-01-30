@@ -99,14 +99,15 @@ public final class GameCharacter {
 					Vector2 newPoint = new Vector2(point.x + step.x, point.y + step.y);
 					TiledMapTileLayer mainLayer = (TiledMapTileLayer)map.getLayers().get(PATHING_LAYER_NAME);
 					Cell cell = mainLayer.getCell((int)newPoint.x, (int)newPoint.y);
+					Boolean checkInteractions = gameEnv.checkInteractions(this, newPoint);
 					if( newPoint.x >= 0 && newPoint.x < mainLayer.getWidth() && newPoint.y >= 0 && newPoint.y < mainLayer.getHeight()
-								&& !gameEnv.checkInteractions(this, newPoint)
+							&& !checkInteractions
 							&& (cell == null || cell.getTile().getId() == 1)) {
 						point = newPoint;
 						isMoving = true;
 					} else {
 						// If we bump a direction play bump sound.
-						if (bumpedlastTime + 0.2f < stateTime) {
+						if (!checkInteractions && bumpedlastTime + 0.2f < stateTime) {
 							bumpSound.play();
 							bumpedlastTime = stateTime;
 						}

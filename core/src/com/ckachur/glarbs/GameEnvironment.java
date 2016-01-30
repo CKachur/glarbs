@@ -31,9 +31,11 @@ public final class GameEnvironment {
 	private GameCharacterKeyboardController playerController;
 	//private MessagePopupListener messagePopupListener;
 	private Sound doorSound;
+	private Sound interactionSound;
 	private GameEventsListener gameEventsListener;
 	private List<GameCharacter> gameCharacters;
 	private Texture devGuyTexture;
+
 	
 	public GameEnvironment(GameEventsListener messagePopupListener) {
 		this.gameEventsListener = messagePopupListener;
@@ -42,8 +44,8 @@ public final class GameEnvironment {
 		map = mapLoader.load("pokeMon.tmx");
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1/TILESIZE);
 		playerController = new GameCharacterKeyboardController();
-
 		doorSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dooropen.wav"));
+		interactionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.wav"));
 		devGuyTexture = new Texture("guySprite.png");
 		devGuy = new GameCharacter("Player", devGuyTexture, new Vector2(5, 95), playerController);
 		gameCharacters = new ArrayList<GameCharacter>();
@@ -131,6 +133,7 @@ public final class GameEnvironment {
 						@Override
 						public boolean onInteracted(GameCharacter source) {
 							if( source == devGuy ) {
+								interactionSound.play();
 								gameEventsListener.showMessagePopup("Bob" + ":\n" + talkText);
 								return true;
 							}
