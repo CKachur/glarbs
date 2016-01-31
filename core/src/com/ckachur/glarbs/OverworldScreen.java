@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.ckachur.glarbs.books.BookemonBattleScreen;
 
 /**
  * Created by Tyler Wolverton on 1/30/2016.
@@ -41,7 +42,7 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
     @Override
     public void render (float delta) {
         gameEnvironment.update(camera);
-        if( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
+        if( currentMessage != null && Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
             currentMessage = null;
             battleTime = 0;
             gameEnvironment.enableControls();
@@ -63,7 +64,9 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
             textSpriteBatch.end();
             if( inBattle && battleTime > pixelatedWhirl.getAnimationDuration()*2 ) {
                 inBattle = false;
-                showMessagePopup("You tried to enter a battle, but we didn't code those yet.");
+                battleTime = 0;
+                glarbs.setScreen(BookemonBattleScreen.createTestBattle(glarbs));
+                //showMessagePopup("You tried to enter a battle, but we didn't code those yet.");
             }
         }
         if( currentMessage != null ) {

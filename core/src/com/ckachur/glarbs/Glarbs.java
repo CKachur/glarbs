@@ -12,4 +12,8 @@ public class Glarbs extends Game {
 		overworldScreen = new OverworldScreen(this);
 		setScreen(overworldScreen);
 	}
+	
+	public Screen getOverworldScreen() {
+		return overworldScreen;
+	}
 }
