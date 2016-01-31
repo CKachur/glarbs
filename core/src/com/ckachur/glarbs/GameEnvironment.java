@@ -101,7 +101,7 @@ public final class GameEnvironment {
 
 		float camX = Math.max(6.75f, Math.min(mapWidth - 6.75f, devGuy.getRenderPoint().x));
 		float camY = Math.max(5, Math.min(mapHeight - 5, devGuy.getRenderPoint().y));
-		
+
 		camera.position.set(new Vector2(camX, camY), 0);
 		camera.update();
 	}
@@ -137,15 +137,16 @@ public final class GameEnvironment {
 				if( properties.containsKey("lockFacing") ) {
 					controller = new GameCharacterLockFacingController(Facing.valueOf(properties.get("lockFacing").toString().toUpperCase()));
 				}
-				GameCharacter npc = new GameCharacter(object.getName(), texture, point, controller);
+				final GameCharacter npc = new GameCharacter(object.getName(), texture, point, controller);
 				if( properties.containsKey("talkText") ) {
+
 					final String talkText = properties.get("talkText").toString();
 					npc.setInteractionListener(new GameCharacterInteractionListener() {
 						@Override
 						public boolean onInteracted(GameCharacter source) {
 							if( source == devGuy ) {
 								interactionSound.play();
-								gameEventsListener.showMessagePopup("Bob" + ":\n" + talkText);
+								gameEventsListener.showMessagePopup(npc.getName() + ":\n" + talkText);
 								return true;
 							}
 							return false;

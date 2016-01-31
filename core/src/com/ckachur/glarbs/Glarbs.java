@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -26,6 +28,7 @@ public class Glarbs extends ApplicationAdapter implements GameEventsListener {
 	private String currentMessage = null;
 	private StringBuffer currentMessageBuffer;
 	private BitmapFont font;
+	private FreeTypeFontGenerator fontGenerator;
 	private GlyphLayout glyphLayout;
 	private SpriteBatch textSpriteBatch;
 	private Texture messageBackdrop;
@@ -56,7 +59,12 @@ public class Glarbs extends ApplicationAdapter implements GameEventsListener {
 		// code for messages on the screen, should probably move elsewhere later
 		currentMessageBuffer = new StringBuffer();
 		messageBackdrop = new Texture("textbox.png");
-		font = new BitmapFont();
+
+
+		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PokemonGB.ttf"));
+		font = fontGenerator.generateFont(new FreeTypeFontParameter());
+
+
 		textSpriteBatch = new SpriteBatch();
 		glyphLayout = new GlyphLayout();
 		
@@ -67,6 +75,9 @@ public class Glarbs extends ApplicationAdapter implements GameEventsListener {
 	@Override
 	public void render () {
 		gameEnvironment.update(camera);
+
+
+
 		if( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
 			currentMessage = null;
 			battleTime = 0;
@@ -106,7 +117,7 @@ public class Glarbs extends ApplicationAdapter implements GameEventsListener {
 			String[] linesOfTextToPrint = textToPrint.split("\n");
 			int linesPrinted = 0;
 			for(String line: linesOfTextToPrint) {
-				font.draw(textSpriteBatch, line, font.getLineHeight()*2, messageBackdropHeight - font.getLineHeight()*(2 + linesPrinted));
+				font.draw(textSpriteBatch, line, font.getLineHeight()*2, messageBackdropHeight - font.getLineHeight()*1.2f*(2 + linesPrinted));
 				linesPrinted++;
 			}
 			textSpriteBatch.end();
