@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 /**
  * Created by Tyler Wolverton on 1/30/2016.
  */
-public class OverworldScreen implements Screen {
+public class OverworldScreen implements Screen, GameEventsListener {
     Glarbs glarbs;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -146,7 +146,7 @@ public class OverworldScreen implements Screen {
         hudViewport.apply();
         hudViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         //mapRenderer.setView(camera);
-        gameEnvironment = new GameEnvironment(glarbs);
+        gameEnvironment = new GameEnvironment(this);
 
         // code for messages on the screen, should probably move elsewhere later
         currentMessageBuffer = new StringBuffer();
