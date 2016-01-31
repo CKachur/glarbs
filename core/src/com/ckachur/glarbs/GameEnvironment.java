@@ -20,6 +20,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.ckachur.glarbs.books.Book;
+import com.ckachur.glarbs.books.BookAbility;
 import com.ckachur.glarbs.books.BookType;
 import com.ckachur.glarbs.books.BookTypes;
 import com.ckachur.glarbs.books.BookemonBattleResultListener;
@@ -42,6 +43,7 @@ public final class GameEnvironment {
 	//private MessagePopupListener messagePopupListener;
 	private Sound doorSound;
 	private Sound interactionSound;
+	private Sound newBookSound;
 	private OverworldGameEventsListener gameEventsListener;
 	private List<GameCharacter> gameCharacters;
 	private Texture devGuyTexture;
@@ -56,6 +58,7 @@ public final class GameEnvironment {
 		playerController = new GameCharacterKeyboardController();
 		doorSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dooropen.wav"));
 		interactionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.wav"));
+		newBookSound = Gdx.audio.newSound(Gdx.files.internal("sounds/MC_Fanfare_Item.wav"));
 		devGuyTexture = new Texture("guySprite.png");
 		devGuy = new GameCharacter("Player", new DefaultPlayerCharacterRenderer(devGuyTexture), new Vector2(10,10), playerController);
 		devGuyBookRoster = new BookemonTrainer("Dev Guy", new TextureRegion(new Texture("battle/trainer.png")));
@@ -190,6 +193,13 @@ public final class GameEnvironment {
 					if( properties.containsKey("reward") ) {
 						rewardMoney = Integer.parseInt(properties.get("reward").toString());
 					}
+					final List<Book> rewardBooks = new ArrayList<Book>();
+					if( properties.containsKey("rewardBooks") ) {
+						String[] books = properties.get("rewardBooks").toString().split(",");
+						for(String book: books) {
+							rewardBooks.add(new Book(BookTypes.TYPES.get(Integer.parseInt(book))));
+						}
+					}
 					final int totalRewardMoney = rewardMoney;
 					String battleSprite = ("battle/trainerRed.png");
 					if( properties.containsKey("battleSprite") ) {
@@ -200,6 +210,9 @@ public final class GameEnvironment {
 					for(String book: books) {
 						trainer.addBook(new Book(BookTypes.TYPES.get(Integer.parseInt(book))));
 					}
+					final boolean canFlee = !properties.containsKey("canFlee") || properties.get("canFlee").equals("true");
+					final boolean bossMusic = properties.containsKey("bossMusic") && properties.get("bossMusic").equals("true");
+					final boolean removeOnLose = properties.containsKey("removeOnLose") && properties.get("removeOnLose").equals("true");
 					npc.setInteractionListener(new GameCharacterInteractionListener() {
 						@Override
 						public boolean onInteracted(GameCharacter source) {
@@ -211,23 +224,43 @@ public final class GameEnvironment {
 									interactionSound.play();
 									gameEventsListener.showMessagePopup("This person wants to fight you in a battle of knowledge, but you are not ready.\nCome back when you've got your books ready and at your side.");
 								} else {
+									trainer.restore();
 									gameEventsListener.enterBattle(trainer, new BookemonBattleResultListener() {
 										@Override
 										public void onWin() {
 											gameEventsListener.showMessagePopup("You were awarded $" + totalRewardMoney + " for defeating " + trainer.getName() + ".");
 											usedObjects.add(trainer.getName());
+											for(Book book: rewardBooks) {
+												if( devGuyBookRoster.addBook(book)) {
+													newBookSound.play();
+													String message = "You were awarded $" + totalRewardMoney + " for defeating " + trainer.getName() + ".\nYou also got a new book for winning: " + book.getName() + "!\n\nAbilities:\n";
+													for(BookAbility ability: book.getAbilities()) {
+														if( ability != null ) {
+															message += " - " + ability.getName() + "\n";
+														}
+													}
+													gameEventsListener.showMessagePopup(message);
+													removedObjects.add(book.getName());
+													break; // it only can show one right now TODO fix this
+												}
+											}
 										}
 										
 										@Override
 										public void onLose() {
 											gameEventsListener.showMessagePopup("You should go repair your books.");
+											if( removeOnLose ) {
+												destroy(npc);
+											}
 										}
 										
 										@Override
 										public void onFlee() {
-											
+											if( removeOnLose ) {
+												destroy(npc);
+											}
 										}
-									});
+									}, canFlee, bossMusic);
 								}
 								return true;
 							}
@@ -247,7 +280,16 @@ public final class GameEnvironment {
 				book.setInteractionListener(new GameCharacterInteractionListener() {
 					@Override
 					public boolean onInteracted(GameCharacter source) {
-						if( devGuyBookRoster.addBook(new Book(bookType))) {
+						Book bookemon = new Book(bookType);
+						if( devGuyBookRoster.addBook(bookemon)) {
+							newBookSound.play();
+							String message = "You got a new book: " + bookemon.getName() + "!\n\nAbilities:\n";
+							for(BookAbility ability: bookemon.getAbilities()) {
+								if( ability != null ) {
+									message += " - " + ability.getName() + "\n";
+								}
+							}
+							gameEventsListener.showMessagePopup(message);
 							removedObjects.add(book.getName());
 							destroy(book);
 						}

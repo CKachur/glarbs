@@ -49,6 +49,14 @@ public class BookemonTrainer {
 //			}
 //		}
 //	}
+	public int getBookIndex(Book book) {
+		for(int i = 0; i < books.length; i++) {
+			if( books[i] == book ) {
+				return i;
+			}
+		}
+		return -1;
+	}
 	public int getFirstLivingBookIndex() {
 		for(int i = 0; i < books.length; i++) {
 			if( books[i] != null && !books[i].isDead() ) {

@@ -41,9 +41,11 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
     private boolean inBattle = false;
     private float battleTime;
     private Music battleMusic;
+    private Music battle2Music;
     private Music backgroundMusic;
 	private BookemonTrainer nextBattleOpponent;
 	private BookemonBattleResultListener nextBattleResultListener;
+	private boolean nextBattleCanFlee;
 
     public OverworldScreen(Glarbs glarbsIn)
     {
@@ -80,13 +82,15 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
 
             // pixelated whirl for battle
             pixelatedWhirl = new Animation(0.035f, TextureRegion.split(new Texture("pixelatedWhirl.png"), 160, 142)[0]);
-            
+
             battleMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/battle.mp3"));
+            battle2Music = Gdx.audio.newMusic(Gdx.files.internal("sounds/battle2.mp3"));
             backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/backgroundMusic.mp3"));
             backgroundMusic.setVolume(0.34f);
     	}
     	gameEnvironment.enableControls();
     	battleMusic.stop();
+    	battle2Music.stop();
     	backgroundMusic.setLooping(true);
     	backgroundMusic.play();
     }
@@ -120,7 +124,9 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
             if( inBattle && delayedAnimationBattleTime > pixelatedWhirl.getAnimationDuration()*2 ) {
                 inBattle = false;
                 battleTime = 0;
-                glarbs.setScreen(new BookemonBattleScreen(glarbs, gameEnvironment.getDevGuyBookRoster(), nextBattleOpponent, nextBattleResultListener));
+                BookemonBattleScreen battleScreen = new BookemonBattleScreen(glarbs, gameEnvironment.getDevGuyBookRoster(), nextBattleOpponent, nextBattleResultListener);
+                battleScreen.setCanFlee(nextBattleCanFlee);
+				glarbs.setScreen(battleScreen);
                 //showMessagePopup("You tried to enter a battle, but we didn't code those yet.");
             }
         }
@@ -161,11 +167,16 @@ public class OverworldScreen implements Screen, OverworldGameEventsListener {
         currentMessage = message;
     }
 
-    public void enterBattle(BookemonTrainer opponent, BookemonBattleResultListener resultListener) {
+    public void enterBattle(BookemonTrainer opponent, BookemonBattleResultListener resultListener, boolean canFlee, boolean bossMusic) {
     	this.nextBattleOpponent = opponent;
 		this.nextBattleResultListener = resultListener;
+		this.nextBattleCanFlee = canFlee;
 		backgroundMusic.stop();
-		battleMusic.play();
+		if( bossMusic ) {
+			battle2Music.play();
+		} else {
+			battleMusic.play();
+		}
         gameEnvironment.disableControls();
         battleTime = 0;
         inBattle = true;

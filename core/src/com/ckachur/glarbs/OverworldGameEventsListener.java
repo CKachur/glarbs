@@ -5,5 +5,5 @@ import com.ckachur.glarbs.books.BookemonTrainer;
 
 public interface OverworldGameEventsListener {
 	void showMessagePopup(String message);
-	void enterBattle(BookemonTrainer opponent, BookemonBattleResultListener resultListener);
+	void enterBattle(BookemonTrainer opponent, BookemonBattleResultListener resultListener, boolean canFlee, boolean bossMusic);
 }

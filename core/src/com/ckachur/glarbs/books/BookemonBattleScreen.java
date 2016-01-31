@@ -98,6 +98,16 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
 						};
 					}
 				};
+			} else if ( lowerTrainer.getActiveBook().isDead() ) {
+				int nextPokemon = lowerTrainer.getFirstLivingBookIndex();
+				messageAction = new Runnable() {
+					@Override
+					public void run() {
+						lowerTrainer.setActiveBookIndex(nextPokemon);
+						options = basicOptions;
+					}
+				};
+				showMessagePopup("Go! " + lowerTrainer.getBooks()[nextPokemon].getName() + "!");
 			}
 		}
 	};
@@ -133,6 +143,12 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
 						});
 					}
 				}
+				options.addOption("BACK", new BattleScreenOptionListener() {
+					@Override
+					public void onSelected() {
+						options = basicOptions;
+					}
+				});
 			}
 		});
         basicOptions.addOption("PACK", new BattleScreenOptionListener() {
@@ -144,7 +160,25 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         basicOptions.addOption("SWAP", new BattleScreenOptionListener() {
 			@Override
 			public void onSelected() {
-				showMessagePopup("You can't swap because honestly who wants to program that?");
+				options = new BattleScreenOptions();
+				for(final Book book: lowerTrainer.getBooks()) {
+					if( book != null ) {
+						options.addOption(book.getName() + " " + book.getHealth() + "/" + book.getMaxHealth(), new BattleScreenOptionListener() {
+							@Override
+							public void onSelected() {
+								lowerTrainer.setActiveBookIndex(lowerTrainer.getBookIndex(book));
+								showMessagePopup("Go! " + lowerTrainer.getActiveBook().getName() + "!");
+								messageAction = enemyTurn;
+							}
+						});
+					}
+				}
+				options.addOption("BACK", new BattleScreenOptionListener() {
+					@Override
+					public void onSelected() {
+						options = basicOptions;
+					}
+				});
 			}
 		});
         basicOptions.addOption("RUN", new BattleScreenOptionListener() {
@@ -290,6 +324,7 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         				}
         				spriteBatch.draw(textureRegion, enemyBracketX + ballBracketWidth - bookIconSize * (i+1), enemyBracketY + ballBracketIndent,bookIconSize, bookIconSize);
         			}
+					spriteBatch.setColor(Color.WHITE);
         			Book[] lowerBooks = lowerTrainer.getBooks();
         			for(int i = 0; i < lowerBooks.length; i++) {
         				Book book = lowerBooks[i];
@@ -306,6 +341,7 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         				}
         				spriteBatch.draw(textureRegion, ballBracketX + bookIconSize * i, ballBracketY + ballBracketIndent,bookIconSize, bookIconSize);
         			}
+					spriteBatch.setColor(Color.WHITE);
     			}
     			if( pokemonSpawnTime && trainerPositionAtTime > dudeWidth*2 ) {
     				TextureRegion openIcon = upperTrainer.getActiveBook().getBookType().getOpenIcon();
@@ -372,6 +408,7 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
     				}
     				spriteBatch.draw(textureRegion, ballBracketX + bookIconSize * i, ballBracketY + ballBracketIndent,bookIconSize, bookIconSize);
     			}
+				spriteBatch.setColor(Color.WHITE);
 			}
 			if( !upperTrainer.getActiveBook().isDead() ) {
 				// draw HP bar for enemy
@@ -404,6 +441,7 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
     				}
     				spriteBatch.draw(textureRegion, enemyBracketX + ballBracketWidth - bookIconSize * (i+1), enemyBracketY + ballBracketIndent,bookIconSize, bookIconSize);
     			}
+				spriteBatch.setColor(Color.WHITE);
 			}
 			
         }

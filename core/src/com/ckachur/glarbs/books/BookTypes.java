@@ -11,11 +11,12 @@ public class BookTypes {
 	public static final BookType ENG_106;
 	public static final BookType INTRO_TO_ALGORITHMS;
 	public static final BookType COMPUTER_ARCHITECTURE;
+	public static final BookType BOOK_OF_MORMON;
 	public static final TextureRegion EMPTY_TEXTURE;
 	
 	static {
 		TextureRegion[][] split = TextureRegion.split(new Texture("glarbsBooks.png"), 16, 16);
-		ANSI_C = new BookType("ANSI C Programming", split[0][2], split[0][0], 40, 6);
+		ANSI_C = new BookType("ANSI C Programming", split[1][3], split[1][1], 40, 6);
 		ANSI_C.addAbilityLearned(1, new BookAbilityBasicDamage("strchomp", 15, 10));
 		ANSI_C.addAbilityLearned(1, new BookAbilityBasicSelfHeal("malloc", 45, 4));
 		TYPES.add(ANSI_C);
@@ -30,6 +31,10 @@ public class BookTypes {
 		COMPUTER_ARCHITECTURE.addAbilityLearned(1, new BookAbilityBasicDamage("Intel x86", 20, 30));
 		COMPUTER_ARCHITECTURE.addAbilityLearned(1, new BookAbilityBasicDamage("Cache Hit", 100, 3));
 		TYPES.add(COMPUTER_ARCHITECTURE);
+		BOOK_OF_MORMON = new BookType("Book of Mormon", split[0][2], split[0][0], 40, 6);
+		BOOK_OF_MORMON.addAbilityLearned(1, new BookAbilityBasicDamage("Free Pamphlets", 20, 999));
+		BOOK_OF_MORMON.addAbilityLearned(1, new BookAbilityBasicSelfHeal("Prayer", 10, 6));
+		TYPES.add(BOOK_OF_MORMON);
 		
 		EMPTY_TEXTURE = split[0][4];
 	}
