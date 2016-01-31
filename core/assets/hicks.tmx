@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="24" tilewidth="16" tileheight="16" nextobjectid="9">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="24" tilewidth="16" tileheight="16" nextobjectid="15">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
   <image source="tiles/pokemon.png" width="343" height="410"/>
  </tileset>
@@ -122,6 +122,42 @@
     <property name="books" value="1"/>
     <property name="rewardBooks" value="1"/>
     <property name="spriteSheet" value="longHairWoman.png"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="9" name="COMPUTER" type="npc" x="176.667" y="143.667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="talkText" value="Looks like the Angsty Knowitall has been reading\nabout how he knows it all."/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="10" name="COMPUTER" type="npc" x="144.333" y="143.667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="talkText" value="Microsoft paint is up and running on this computer.\nYou doodle a picture of a book with a smiley face inside,\nthen quickly glance around to make sure nobody saw you."/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="11" name="RESTO-PC" type="npc" x="112" y="143.333" width="15.3333" height="15.3333">
+   <properties>
+    <property name="action" value="restore"/>
+    <property name="talkText" value="This must be how Prof. Bloak does it.\nThe PC has some equipment attached to repair the pages of\nliterally any kind of book you could imagine.\n\nOther RESTO-PCs you encounter on your journey might prove useful."/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="12" name="Television" type="npc" x="1.66667e-05" y="80.6667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="talkText" value="'That's right,' said Mr. Trump, 'I could literally blow their heads off with a shotgun\nand they would still vote for me.'"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="13" name="foodMessage" type="messagePopup" x="0" y="63.3333" width="128.333" height="16">
+   <properties>
+    <property name="message" value="The lady behind the counter looks at you with a friend face\nand asks if there's anything she could get for you.\nBut, as you look around at price tags, you decide you aren't hungry."/>
+   </properties>
+  </object>
+  <object id="14" name="Nurse Joy" type="npc" x="32.3334" y="32.6667" width="15.3333" height="15.3333">
+   <properties>
+    <property name="spriteSheet" value="nurseJoy.png"/>
    </properties>
    <ellipse/>
   </object>
