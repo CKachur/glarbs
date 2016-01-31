@@ -152,7 +152,7 @@
   </object>
   <object id="13" name="foodMessage" type="messagePopup" x="0" y="63.3333" width="128.333" height="16">
    <properties>
-    <property name="message" value="The lady behind the counter looks at you with a friend face\nand asks if there's anything she could get for you.\nBut, as you look around at price tags, you decide you aren't hungry."/>
+    <property name="message" value="The lady behind the counter looks at you with a friendly face\nand asks if there's anything she could get for you.\nBut, as you look around at price tags, you decide you aren't hungry."/>
    </properties>
   </object>
   <object id="14" name="Nurse Joy" type="npc" x="32.3334" y="32.6667" width="15.3333" height="15.3333">
