@@ -1,6 +1,6 @@
 package com.ckachur.glarbs;
 
-public interface GameEventsListener {
+public interface OverworldGameEventsListener {
 	void showMessagePopup(String message);
 	void enterBattle();
 }

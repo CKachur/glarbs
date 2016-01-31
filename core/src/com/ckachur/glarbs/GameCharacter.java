@@ -16,30 +16,20 @@ import com.badlogic.gdx.math.Vector2;
 public final class GameCharacter {
 	private static final String PATHING_LAYER_NAME = "Pathing";
 	private String name;
-	private TextureRegion currentFrame;
-	private final Animation[] walkAnimations;
 	private Vector2 point;
 	private Vector2 renderPoint; //for gliding independent of grid
 	private Facing facing;
 	private boolean isMoving = false;
-	private TextureRegion[][] spriteSheet;
-	private float stateTime;
-	private GameCharacterController controller;
 	private Sound bumpSound;
-	private float bumpedlastTime = 0;
+	private float bumpedSoundTimer = 0;
+	private GameCharacterController controller;
 	private GameCharacterInteractionListener interactionListener;
+	private GameCharacterRenderer renderer;
 
-	public GameCharacter(String name, Texture texture, Vector2 point, GameCharacterController controller) {
+	public GameCharacter(String name, GameCharacterRenderer renderer, Vector2 point, GameCharacterController controller) {
 		this.name = name;
+		this.renderer = renderer;
 		this.controller = controller;
-		if( texture != null ) {
-			spriteSheet = TextureRegion.split(texture, 16, 16);
-			walkAnimations = new Animation[4];// 4 cardinal directions
-			setupAnimations();
-			currentFrame = spriteSheet[1][0];
-		} else {
-			walkAnimations = null;
-		}
 		facing = Facing.DOWN;
 		this.point = point;
 		renderPoint = new Vector2(point);
@@ -52,16 +42,7 @@ public final class GameCharacter {
 	}
 
 	public void render(SpriteBatch batch) {
-		if( spriteSheet == null ) {
-			return;
-		}
-		if( isMoving ) {
-			stateTime += Gdx.graphics.getDeltaTime();
-			currentFrame = walkAnimations[facing.ordinal()].getKeyFrame(stateTime, true);
-		} else {
-			currentFrame = spriteSheet[facing.ordinal()][0];
-		}
-		batch.draw(currentFrame, renderPoint.x, renderPoint.y, 1, 1);
+		renderer.render(batch, renderPoint, facing, isMoving);
 	}
 
 	public Vector2 getPoint() {
@@ -84,7 +65,7 @@ public final class GameCharacter {
 	public void update(GameEnvironment gameEnv, TiledMap map) {
 		if( isMoving ) {
 			Vector2 distanceToGo = new Vector2(point.x - renderPoint.x, point.y - renderPoint.y);
-			renderPoint.add(distanceToGo.scl(1/(distanceToGo.len()*15)));
+			renderPoint.add(distanceToGo.scl(3/(distanceToGo.len())*Gdx.graphics.getDeltaTime()));
 			if( renderPoint.dst2(point) <= 0.001f ) {
 				renderPoint = new Vector2(point);
 				isMoving = false;
@@ -103,13 +84,16 @@ public final class GameCharacter {
 					if( newPoint.x >= 0 && newPoint.x < mainLayer.getWidth() && newPoint.y >= 0 && newPoint.y < mainLayer.getHeight()
 							&& !checkInteractions
 							&& (cell == null || cell.getTile().getId() == 1)) {
+						bumpedSoundTimer = 0;
 						point = newPoint;
 						isMoving = true;
 					} else {
 						// If we bump a direction play bump sound.
-						if (!checkInteractions && bumpedlastTime + 0.2f < stateTime) {
+						if (!checkInteractions && bumpedSoundTimer <= 0) {
 							bumpSound.play();
-							bumpedlastTime = stateTime;
+							bumpedSoundTimer = 0.8f;
+						} else {
+							bumpedSoundTimer -= Gdx.graphics.getDeltaTime();
 						}
 					}
 				}
@@ -153,30 +137,5 @@ public final class GameCharacter {
 		float dx = target.x - renderPoint.x;
 		float dy = target.y - renderPoint.y;
 		return (float)-Math.toDegrees(Math.atan2(dx, dy))+90;
-	}
-
-	private void setupAnimations() {
-		int animationIndex = 0;
-		for(TextureRegion[] row: spriteSheet) {
-			if( row.length <= 1 ) {
-				// static character (probably npc)
-				walkAnimations[animationIndex] = new Animation(0.125f, row);
-				animationIndex++;
-			} else {
-				// animating character (probably main guy)
-				TextureRegion[] animationFrames = new TextureRegion[2];
-				for(int i = 0; i < 2; i++) {
-					if( animationIndex >= 2 ) {
-						// the left/right directions use the basic stand, and are index 2/3
-						// so, they use indices 
-						animationFrames[i] = row[i];
-					} else {
-						animationFrames[i] = row[i+1];
-					}
-				}
-				walkAnimations[animationIndex] = new Animation(0.125f, animationFrames);
-				animationIndex++;
-			}
-		}
 	}
 }

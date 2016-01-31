@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 /**
  * Created by Tyler Wolverton on 1/30/2016.
  */
-public class OverworldScreen implements Screen, GameEventsListener {
+public class OverworldScreen implements Screen, OverworldGameEventsListener {
     Glarbs glarbs;
     private OrthographicCamera camera;
     private Viewport viewport;

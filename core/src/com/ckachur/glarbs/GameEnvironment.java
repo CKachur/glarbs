@@ -18,7 +18,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 
 public final class GameEnvironment {
 	public static final float TILESIZE = 16f;
@@ -34,22 +33,22 @@ public final class GameEnvironment {
 	//private MessagePopupListener messagePopupListener;
 	private Sound doorSound;
 	private Sound interactionSound;
-	private GameEventsListener gameEventsListener;
+	private OverworldGameEventsListener gameEventsListener;
 	private List<GameCharacter> gameCharacters;
 	private Texture devGuyTexture;
 
 	
-	public GameEnvironment(GameEventsListener messagePopupListener) {
+	public GameEnvironment(OverworldGameEventsListener messagePopupListener) {
 		this.gameEventsListener = messagePopupListener;
 		spriteBatch = new SpriteBatch();
 		mapLoader = new TmxMapLoader();
-		map = mapLoader.load("pokeMon.tmx");
+		map = mapLoader.load("hicks.tmx");
 		mapRenderer = new OrthogonalTiledMapRenderer(map, 1/TILESIZE);
 		playerController = new GameCharacterKeyboardController();
 		doorSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dooropen.wav"));
 		interactionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.wav"));
 		devGuyTexture = new Texture("guySprite.png");
-		devGuy = new GameCharacter("Player", devGuyTexture, new Vector2(5, 95), playerController);
+		devGuy = new GameCharacter("Player", new DefaultPlayerCharacterRenderer(devGuyTexture), new Vector2(10,10), playerController);
 		gameCharacters = new ArrayList<GameCharacter>();
 		onMapLoad();
 	}
@@ -137,7 +136,7 @@ public final class GameEnvironment {
 				if( properties.containsKey("lockFacing") ) {
 					controller = new GameCharacterLockFacingController(Facing.valueOf(properties.get("lockFacing").toString().toUpperCase()));
 				}
-				final GameCharacter npc = new GameCharacter(object.getName(), texture, point, controller);
+				final GameCharacter npc = new GameCharacter(object.getName(), new DefaultPlayerCharacterRenderer(texture), point, controller);
 				if( properties.containsKey("talkText") ) {
 
 					final String talkText = properties.get("talkText").toString();
