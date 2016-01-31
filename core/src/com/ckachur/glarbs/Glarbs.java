@@ -5,7 +5,7 @@ import com.badlogic.gdx.Screen;
 
 public class Glarbs extends Game {
 
-	Screen overworldScreen;
+	OverworldScreen overworldScreen;
 
 	@Override
 	public void create() {
@@ -13,7 +13,7 @@ public class Glarbs extends Game {
 		setScreen(overworldScreen);
 	}
 	
-	public Screen getOverworldScreen() {
+	public OverworldScreen getOverworldScreen() {
 		return overworldScreen;
 	}
 }

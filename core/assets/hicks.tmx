@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="24" tilewidth="16" tileheight="16" nextobjectid="3">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="24" tilewidth="16" tileheight="16" nextobjectid="7">
  <tileset firstgid="1" name="pokemon" tilewidth="16" tileheight="16" spacing="1" margin="1" tilecount="480" columns="20">
   <image source="tiles/pokemon.png" width="343" height="410"/>
  </tileset>
@@ -65,15 +65,44 @@
  <objectgroup name="Objects">
   <object id="1" name="Professor Bloak" type="npc" x="303.667" y="208" width="15.3333" height="15.3333">
    <properties>
+    <property name="action" value="restore"/>
     <property name="spriteSheet" value="professor.png"/>
-    <property name="talkText" value="Welcome to the Hicks Library!"/>
+    <property name="talkText" value="Welcome to the Hicks Library!\n\nEach time you talk to me, I will repair all of your torn and tattered textbooks to their\noriginal strength."/>
    </properties>
    <ellipse/>
   </object>
-  <object id="2" name="Lapras" type="npc" x="191.667" y="159" width="15.3333" height="15.3333">
+  <object id="2" name="Angsty Knowitall" type="npc" x="191.667" y="159" width="15.3333" height="15.3333">
    <properties>
     <property name="action" value="fight"/>
-    <property name="spriteSheet" value="lapras.png"/>
+    <property name="battleSprite" value="battle/dullGuy.png"/>
+    <property name="books" value="1,2,1"/>
+    <property name="spriteSheet" value="dullGuy.png"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="3" name="StarterBookANSIC" type="book" x="289" y="176.333" width="14.6667" height="13.6667">
+   <properties>
+    <property name="bookId" value="0"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="4" type="levelTransition" x="332" y="13" width="23.3333" height="37.6667">
+   <properties>
+    <property name="target" value="purduecampus.tmx"/>
+    <property name="targetX" value="57"/>
+    <property name="targetY" value="7"/>
+   </properties>
+  </object>
+  <object id="5" type="levelTransition" x="172.667" y="12.8333" width="23.3333" height="37.6667">
+   <properties>
+    <property name="target" value="purduecampus.tmx"/>
+    <property name="targetX" value="51"/>
+    <property name="targetY" value="7"/>
+   </properties>
+  </object>
+  <object id="6" name="StarterBookOPArchitecture" type="book" x="33" y="304.167" width="14.6667" height="13.6667">
+   <properties>
+    <property name="bookId" value="3"/>
    </properties>
    <ellipse/>
   </object>

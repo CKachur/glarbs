@@ -1,6 +1,8 @@
 package com.ckachur.glarbs.books;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -8,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public final class BookType {
 	private final TextureRegion closedIcon;
 	private final TextureRegion openIcon;
-	private final Map<Integer, BookAbility> levelToAbilityLearned;
+	private final Map<Integer, List<BookAbility>> levelToAbilityLearned;
 	private String name;
 	private int maxHealth;
 	private int healthPerLevel;
@@ -29,11 +31,16 @@ public final class BookType {
 	public TextureRegion getOpenIcon() {
 		return openIcon;
 	}
-	public Map<Integer, BookAbility> getLevelToAbilityLearned() {
-		return levelToAbilityLearned;
+	public List<BookAbility> getAbilitiesLearnedAtLevel(int level) {
+		List<BookAbility> abilities = levelToAbilityLearned.get(level);
+		if( abilities == null ) {
+			abilities = new ArrayList<>();
+			levelToAbilityLearned.put(level, abilities);
+		}
+		return abilities;
 	}
 	public void addAbilityLearned(int level, BookAbility ability) {
-		levelToAbilityLearned.put(level, ability);
+		getAbilitiesLearnedAtLevel(level).add(ability);
 	}
 	public int getMaxHealth(int level) {
 		return maxHealth + healthPerLevel * level;

@@ -42,7 +42,9 @@ public final class GameCharacter {
 	}
 
 	public void render(SpriteBatch batch) {
-		renderer.render(batch, renderPoint, facing, isMoving);
+		if( renderer != null ) {
+			renderer.render(batch, renderPoint, facing, isMoving);
+		}
 	}
 
 	public Vector2 getPoint() {

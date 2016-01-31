@@ -26,7 +26,7 @@ public class BookemonTrainer {
 	}
 	public boolean isDefeated() {
 		for(Book book: books) {
-			if( !book.isDead() ) {
+			if( book != null && !book.isDead() ) {
 				return false;
 			}
 		}
@@ -41,14 +41,14 @@ public class BookemonTrainer {
 	public void setActiveBookIndex(int activeBookIndex) {
 		this.activeBookIndex = activeBookIndex;
 	}
-	public void update() {
-		if( books[activeBookIndex] == null || books[activeBookIndex].isDead() ) {
-			int firstLivingBookIndex = getFirstLivingBookIndex();
-			if( firstLivingBookIndex >= 0 ) {
-				activeBookIndex = firstLivingBookIndex;
-			}
-		}
-	}
+//	public void update() {
+//		if( books[activeBookIndex] == null || books[activeBookIndex].isDead() ) {
+//			int firstLivingBookIndex = getFirstLivingBookIndex();
+//			if( firstLivingBookIndex >= 0 ) {
+//				activeBookIndex = firstLivingBookIndex;
+//			}
+//		}
+//	}
 	public int getFirstLivingBookIndex() {
 		for(int i = 0; i < books.length; i++) {
 			if( books[i] != null && !books[i].isDead() ) {
@@ -56,5 +56,21 @@ public class BookemonTrainer {
 			}
 		}
 		return -1;
+	}
+	public boolean addBook(Book book) {
+		for(int i = 0; i < books.length; i++) {
+			if( books[i] == null ) {
+				books[i] = book;
+				return true;
+			}
+		}
+		return false;
+	}
+	public void restore() {
+		for(Book book: books) {
+			if( book != null ) {
+				book.restore();
+			}
+		}
 	}
 }

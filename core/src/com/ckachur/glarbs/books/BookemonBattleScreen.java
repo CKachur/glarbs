@@ -1,5 +1,9 @@
 package com.ckachur.glarbs.books;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -30,13 +34,136 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
 	private BitmapFont font;
 	private BattleState state;
 	private GlyphLayout glyphLayout;
+	private BattleScreenOptions options;
+	private final BattleScreenOptions basicOptions;
+	private boolean canFlee = true;
+	private Runnable messageAction;
+	private BookemonBattleResultListener resultListener;
+	
+	private final Runnable enemyTurn = new Runnable() {
+		@Override
+		public void run() {
+			List<BookAbility> randomizedChoices = new ArrayList<BookAbility>();
+			Book enemyBook = upperTrainer.getActiveBook();
+			if( enemyBook.isDead() ) {
+				if( !upperTrainer.isDefeated() ) {
+					int nextPokemon = upperTrainer.getFirstLivingBookIndex();
+					messageAction = new Runnable() {
+						@Override
+						public void run() {
+							upperTrainer.setActiveBookIndex(nextPokemon);
+							options = basicOptions;
+						}
+					};
+					showMessagePopup(upperTrainer.getName() + " chooses " + upperTrainer.getBooks()[nextPokemon].getName() + "!");
+				} else {
+					messageAction = new Runnable() {
+						@Override
+						public void run() {
+							glarbs.setScreen(glarbs.getOverworldScreen());
+							resultListener.onWin();
+						}
+					};
+					showMessagePopup(upperTrainer.getName() + " has been defeated! " + lowerTrainer.getName() + " is the winner!");
+				}
+				return;
+			}
+			for(BookAbility ability: enemyBook.getAbilities()) {
+				if( ability != null && enemyBook.getPPRemaining(ability) > 0 ) {
+					randomizedChoices.add(ability);
+				}
+			}
+			if( randomizedChoices.isEmpty() ) {
+				showMessagePopup(enemyBook.getName() + " is out of moves, and did nothing.");
+				return;
+			}
+			Collections.shuffle(randomizedChoices);
+			BookAbility bookAbility = randomizedChoices.get(0);
+			if( enemyBook.use(bookAbility, lowerTrainer.getActiveBook()) ) {
+				showMessagePopup(enemyBook.getName() + " used " + bookAbility.getName() + "!");
+			} else {
+				showMessagePopup(enemyBook.getName() + " has no more pp remaining for " + bookAbility.getName() + "!\nIt's turn was wasted.");
+			}
+			if( lowerTrainer.isDefeated() ) {
+				messageAction = new Runnable() {
+					@Override
+					public void run() {
+						showMessagePopup(lowerTrainer.getName() + " was defeated by " + upperTrainer.getName() + "!");
+						messageAction = new Runnable() {
+							@Override
+							public void run() {
+								glarbs.setScreen(glarbs.getOverworldScreen());
+								resultListener.onLose();
+							}
+						};
+					}
+				};
+			}
+		}
+	};
 
-    public BookemonBattleScreen(Glarbs glarbs, BookemonTrainer lowerTrainer, BookemonTrainer upperTrainer) {
+    public BookemonBattleScreen(Glarbs glarbs, BookemonTrainer lowerTrainer, BookemonTrainer upperTrainer, BookemonBattleResultListener listener) {
 		this.glarbs = glarbs;
 		this.lowerTrainer = lowerTrainer;
 		this.upperTrainer = upperTrainer;
+		this.resultListener = listener;
 		currentMessage = "You have entered a battle with " + upperTrainer.getName() + "!\n\nPress SPACE to begin.";
 		state = BattleState.SLIDE_IN;
+        
+        // create basic fight options
+
+        basicOptions = new BattleScreenOptions();
+        basicOptions.addOption("FIGHT", new BattleScreenOptionListener() {
+			@Override
+			public void onSelected() {
+				options = new BattleScreenOptions();
+				for(final BookAbility ability: lowerTrainer.getActiveBook().getAbilities()) {
+					if( ability != null ) {
+						options.addOption(ability.getName() + " " + lowerTrainer.getActiveBook().getPPRemaining(ability) + "/" + ability.getMaxPP(), new BattleScreenOptionListener() {
+							@Override
+							public void onSelected() {
+								options = null;
+								messageAction = enemyTurn;
+								if( lowerTrainer.getActiveBook().use(ability, upperTrainer.getActiveBook()) ) {
+									showMessagePopup(lowerTrainer.getActiveBook().getName() + " used " + ability.getName() +".");
+								} else {
+									showMessagePopup(lowerTrainer.getActiveBook().getName() + " has no more pp remaining for " + ability.getName() +".");
+								}
+							}
+						});
+					}
+				}
+			}
+		});
+        basicOptions.addOption("PACK", new BattleScreenOptionListener() {
+			@Override
+			public void onSelected() {
+				showMessagePopup("There is no pack coded into this game.");
+			}
+		});
+        basicOptions.addOption("SWAP", new BattleScreenOptionListener() {
+			@Override
+			public void onSelected() {
+				showMessagePopup("You can't swap because honestly who wants to program that?");
+			}
+		});
+        basicOptions.addOption("RUN", new BattleScreenOptionListener() {
+			@Override
+			public void onSelected() {
+				if( canFlee ) {
+					messageAction = new Runnable() {
+						@Override
+						public void run() {
+		    				glarbs.setScreen(glarbs.getOverworldScreen());
+		    				resultListener.onFlee();
+						}
+					};
+					showMessagePopup("You flee from " + upperTrainer.getName() + ".");
+				} else {
+					showMessagePopup("Unable to flee.");
+				}
+			}
+		});
 	}
     
     public static BookemonBattleScreen createTestBattle(Glarbs glarbs) {
@@ -46,9 +173,26 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
     	trainer2.setBook(0, new Book(BookTypes.ENG_106));
     	trainer2.setBook(1, new Book(BookTypes.ENG_106));
     	trainer2.setBook(2, new Book(BookTypes.ENG_106));
-    	return new BookemonBattleScreen(glarbs, trainer1, trainer2);
-    }
+    	return new BookemonBattleScreen(glarbs, trainer1, trainer2, new BookemonBattleResultListener() {
+			@Override
+			public void onWin() {
+				
+			}
+			
+			@Override
+			public void onLose() {
+				
+			}
 
+			@Override
+			public void onFlee() {
+				
+			}
+		});
+    }
+    public void setCanFlee(boolean canFlee) {
+		this.canFlee = canFlee;
+	}
 	@Override
     public void show()
     {
@@ -72,13 +216,25 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
 
     @Override
     public void render (float delta) {
-    	if( Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
+    	if( currentMessage != null && Gdx.input.isKeyJustPressed(Input.Keys.SPACE) ) {
     		currentMessage = null;
     		if( state == BattleState.SLIDE_IN ) {
     			state = BattleState.SPAWN_POKEMON;
     			stateTime = 0;
     		}
+    		if( state == BattleState.FIGHT ) {
+    			if( messageAction != null ) {
+    				Runnable currentAction = messageAction;
+    				messageAction = null;
+    				currentAction.run();
+    			} else if( options == null ) {
+    				options = basicOptions;
+    			}
+    		}
+    	} else if( options != null ) {
+    		options.update();
     	}
+    	
     	
     	stateTime += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -127,6 +283,11 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         				} else {
         					textureRegion = BookTypes.EMPTY_TEXTURE;
         				}
+        				if( book != null && book.isDead() ) {
+        					spriteBatch.setColor(Color.BLACK);
+        				} else {
+        					spriteBatch.setColor(Color.WHITE);
+        				}
         				spriteBatch.draw(textureRegion, enemyBracketX + ballBracketWidth - bookIconSize * (i+1), enemyBracketY + ballBracketIndent,bookIconSize, bookIconSize);
         			}
         			Book[] lowerBooks = lowerTrainer.getBooks();
@@ -137,6 +298,11 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         					textureRegion = book.getBookType().getClosedIcon();
         				} else {
         					textureRegion = BookTypes.EMPTY_TEXTURE;
+        				}
+        				if( book != null && book.isDead() ) {
+        					spriteBatch.setColor(Color.BLACK);
+        				} else {
+        					spriteBatch.setColor(Color.WHITE);
         				}
         				spriteBatch.draw(textureRegion, ballBracketX + bookIconSize * i, ballBracketY + ballBracketIndent,bookIconSize, bookIconSize);
         			}
@@ -152,9 +318,16 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
             }
 			if( state == BattleState.SPAWN_POKEMON && trainerPositionAtTime > dudeWidth*3 ) {
 				state = BattleState.FIGHT;
+				options = basicOptions;
 			}
         } else if( state == BattleState.FIGHT ) {
+//        	lowerTrainer.update();
+//        	upperTrainer.update();
+        	
+        	
             float dudeWidth = viewport.getWorldHeight()/3;
+    		float upperDudeX = viewport.getWorldWidth()-dudeWidth;
+            float lowerDudeX = 0;
         	
             // ================Draw the brackets holding the HP bars================
         	float ballBracketIndent = 16;
@@ -164,29 +337,78 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
 			float ballBracketY = messageBackdropHeight + ballBracketIndent;
 			spriteBatch.draw(ballBracket, ballBracketX, ballBracketY, ballBracketWidth, ballBracketHeight);
 
-			// draw HP bar for player
-			font.draw(spriteBatch, lowerTrainer.getActiveBook().getName(), ballBracketX, ballBracketY + ballBracketHeight + font.getLineHeight());
-			font.draw(spriteBatch, lowerTrainer.getActiveBook().getHealth() + "/" + lowerTrainer.getActiveBook().getMaxHealth(), ballBracketX, ballBracketY + ballBracketHeight);
-			
+			// setup for brackets
+			float bookIconSize = 32;
 			float enemyBracketX = ballBracketIndent;
 			float enemyBracketY = viewport.getWorldHeight()-dudeWidth + ballBracketIndent;
+			
 			spriteBatch.draw(ballBracket, enemyBracketX, enemyBracketY, ballBracketWidth, ballBracketHeight, 0, 0, ballBracket.getWidth(), ballBracket.getHeight(), true, false);
 
-			// draw HP bar for enemy
-			String text = upperTrainer.getActiveBook().getName();
-			glyphLayout.setText(font, text);
-			font.draw(spriteBatch, text, enemyBracketX + ballBracketWidth - glyphLayout.width, enemyBracketY + ballBracketHeight + font.getLineHeight());
-			text = upperTrainer.getActiveBook().getHealth() + "/" + upperTrainer.getActiveBook().getMaxHealth();
-			glyphLayout.setText(font, text);
-			font.draw(spriteBatch, text, enemyBracketX + ballBracketWidth - glyphLayout.width, enemyBracketY + ballBracketHeight);
+			if( !lowerTrainer.getActiveBook().isDead() ) {
+				// draw HP bar for player
+				font.draw(spriteBatch, lowerTrainer.getActiveBook().getName(), ballBracketX, ballBracketY + ballBracketHeight + font.getLineHeight());
+				font.draw(spriteBatch, lowerTrainer.getActiveBook().getHealth() + "/" + lowerTrainer.getActiveBook().getMaxHealth(), ballBracketX, ballBracketY + ballBracketHeight);
+				
+				
+				TextureRegion openIcon = lowerTrainer.getActiveBook().getBookType().getOpenIcon();
+				int bookWidth = openIcon.getRegionWidth()*8;
+				int bookHeight = openIcon.getRegionHeight()*8;
+				spriteBatch.draw(openIcon, (dudeWidth-bookWidth)/2, messageBackdropHeight + (dudeWidth-bookHeight)/2, bookWidth, bookHeight);
+			} else {
+	    		spriteBatch.draw(lowerTrainer.getTextureRegion(), lowerDudeX, messageBackdropHeight, dudeWidth, dudeWidth);
+    			Book[] lowerBooks = lowerTrainer.getBooks();
+    			for(int i = 0; i < lowerBooks.length; i++) {
+    				Book book = lowerBooks[i];
+    				TextureRegion textureRegion;
+    				if( book != null ) {
+    					textureRegion = book.getBookType().getClosedIcon();
+    				} else {
+    					textureRegion = BookTypes.EMPTY_TEXTURE;
+    				}
+    				if( book != null && book.isDead() ) {
+    					spriteBatch.setColor(Color.BLACK);
+    				} else {
+    					spriteBatch.setColor(Color.WHITE);
+    				}
+    				spriteBatch.draw(textureRegion, ballBracketX + bookIconSize * i, ballBracketY + ballBracketIndent,bookIconSize, bookIconSize);
+    			}
+			}
+			if( !upperTrainer.getActiveBook().isDead() ) {
+				// draw HP bar for enemy
+				String text = upperTrainer.getActiveBook().getName();
+				glyphLayout.setText(font, text);
+				font.draw(spriteBatch, text, enemyBracketX + ballBracketWidth - glyphLayout.width, enemyBracketY + ballBracketHeight + font.getLineHeight());
+				text = upperTrainer.getActiveBook().getHealth() + "/" + upperTrainer.getActiveBook().getMaxHealth();
+				glyphLayout.setText(font, text);
+				font.draw(spriteBatch, text, enemyBracketX + ballBracketWidth - glyphLayout.width, enemyBracketY + ballBracketHeight);
+
+				TextureRegion openIcon = upperTrainer.getActiveBook().getBookType().getOpenIcon();
+				int bookWidth = openIcon.getRegionWidth()*8;
+				int bookHeight = openIcon.getRegionHeight()*8;
+				spriteBatch.draw(openIcon, viewport.getWorldWidth()-(dudeWidth+bookWidth)/2, viewport.getWorldHeight()-(dudeWidth+bookHeight)/2 + ballBracketIndent, bookWidth, bookHeight);
+			} else {
+	            spriteBatch.draw(upperTrainer.getTextureRegion(), upperDudeX, viewport.getWorldHeight()-dudeWidth, dudeWidth, dudeWidth);
+    			Book[] upperBooks = upperTrainer.getBooks();
+    			for(int i = 0; i < upperBooks.length; i++) {
+    				Book book = upperBooks[i];
+    				TextureRegion textureRegion;
+    				if( book != null ) {
+    					textureRegion = book.getBookType().getClosedIcon();
+    				} else {
+    					textureRegion = BookTypes.EMPTY_TEXTURE;
+    				}
+    				if( book != null && book.isDead() ) {
+    					spriteBatch.setColor(Color.BLACK);
+    				} else {
+    					spriteBatch.setColor(Color.WHITE);
+    				}
+    				spriteBatch.draw(textureRegion, enemyBracketX + ballBracketWidth - bookIconSize * (i+1), enemyBracketY + ballBracketIndent,bookIconSize, bookIconSize);
+    			}
+			}
 			
-			// ======================Draw the sprites for the two books, top and bottom==============
-			TextureRegion openIcon = upperTrainer.getActiveBook().getBookType().getOpenIcon();
-			int bookWidth = openIcon.getRegionWidth()*8;
-			int bookHeight = openIcon.getRegionHeight()*8;
-			spriteBatch.draw(openIcon, viewport.getWorldWidth()-(dudeWidth+bookWidth)/2, viewport.getWorldHeight()-(dudeWidth+bookHeight)/2 + ballBracketIndent, bookWidth, bookHeight);
-			openIcon = lowerTrainer.getActiveBook().getBookType().getOpenIcon();
-			spriteBatch.draw(openIcon, (dudeWidth-bookWidth)/2, messageBackdropHeight + (dudeWidth-bookHeight)/2, bookWidth, bookHeight);
+        }
+        if( options != null ) {
+        	options.render(viewport, spriteBatch);
         }
         
         
@@ -205,6 +427,14 @@ public class BookemonBattleScreen extends ScreenAdapter implements Screen {
         }
         
         spriteBatch.end();
+    }
+
+    public void showMessagePopup(String message) {
+        message = message.replace("\\n", "\n");
+        stateTime = 0;
+        options = null;
+        currentMessageBuffer.setLength(0);
+        currentMessage = message;
     }
 
     public void resize(int width, int height) {

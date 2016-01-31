@@ -10,6 +10,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
@@ -18,6 +19,11 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.ckachur.glarbs.books.Book;
+import com.ckachur.glarbs.books.BookType;
+import com.ckachur.glarbs.books.BookTypes;
+import com.ckachur.glarbs.books.BookemonBattleResultListener;
+import com.ckachur.glarbs.books.BookemonTrainer;
 
 public final class GameEnvironment {
 	public static final float TILESIZE = 16f;
@@ -26,8 +32,11 @@ public final class GameEnvironment {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private GameCharacter devGuy;
+	private BookemonTrainer devGuyBookRoster;// probably the wrong place for this object
 	private int[] layersToDraw = { 0 };
-	private Set<String> usedMessagePopups = new HashSet<String>();
+	private Set<String> usedObjects = new HashSet<String>();
+	private Set<String> removedObjects = new HashSet<String>();
+	private List<GameCharacter> toDestroy = new ArrayList<>();
 	private String lastPopupName;
 	private GameCharacterKeyboardController playerController;
 	//private MessagePopupListener messagePopupListener;
@@ -49,6 +58,7 @@ public final class GameEnvironment {
 		interactionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/select.wav"));
 		devGuyTexture = new Texture("guySprite.png");
 		devGuy = new GameCharacter("Player", new DefaultPlayerCharacterRenderer(devGuyTexture), new Vector2(10,10), playerController);
+		devGuyBookRoster = new BookemonTrainer("Dev Guy", new TextureRegion(new Texture("battle/trainer.png")));
 		gameCharacters = new ArrayList<GameCharacter>();
 		onMapLoad();
 	}
@@ -70,6 +80,10 @@ public final class GameEnvironment {
 		for(GameCharacter character: gameCharacters) {
 			character.update(this, map);
 		}
+		for(GameCharacter character: toDestroy) {
+			gameCharacters.remove(character);
+		}
+		toDestroy.clear();
 		MapLayer objectsLayer = map.getLayers().get("Objects");
 		for(MapObject object: objectsLayer.getObjects()) {
 			Object typeProperty = object.getProperties().get("type");
@@ -83,11 +97,11 @@ public final class GameEnvironment {
 								Float.parseFloat(object.getProperties().get("targetX").toString()),
 								Float.parseFloat(object.getProperties().get("targetY").toString())));
 				onMapLoad();
-			} else if( typeProperty.equals("messagePopup") && devGuy.intersects(object) && !(object.getProperties().containsKey("oneTime") && object.getProperties().get("oneTime").equals("true") && usedMessagePopups.contains(object.getName())) && !object.getName().equals(lastPopupName) ) {
+			} else if( typeProperty.equals("messagePopup") && devGuy.intersects(object) && !(object.getProperties().containsKey("oneTime") && object.getProperties().get("oneTime").equals("true") && usedObjects.contains(object.getName())) && !object.getName().equals(lastPopupName) ) {
 				// load the target level
 				gameEventsListener.showMessagePopup(object.getProperties().get("message").toString());
 				if( object.getProperties().containsKey("oneTime") && object.getProperties().get("oneTime").equals("true") ) {
-					usedMessagePopups.add(object.getName());
+					usedObjects.add(object.getName());
 				}
 				lastPopupName = object.getName();
 			}
@@ -122,41 +136,99 @@ public final class GameEnvironment {
 		for(MapObject object: objectLayer.getObjects()) {
 			MapProperties properties = object.getProperties();
 			Object typeProperty = properties.get("type");
+			float x = Float.parseFloat(properties.get("x").toString())/GameEnvironment.TILESIZE;
+			float y = Float.parseFloat(properties.get("y").toString())/GameEnvironment.TILESIZE;
+			float width = Float.parseFloat(properties.get("width").toString())/GameEnvironment.TILESIZE;
+			float height = Float.parseFloat(properties.get("height").toString())/GameEnvironment.TILESIZE;
+			Vector2 point = new Vector2(x + width/2 - 0.5f, y + height/2 - 0.5f);
+			if( removedObjects.contains(object.getName()) ) {
+				continue;
+			}
 			if( typeProperty.equals("npc") ) {
-				float x = Float.parseFloat(properties.get("x").toString())/GameEnvironment.TILESIZE;
-				float y = Float.parseFloat(properties.get("y").toString())/GameEnvironment.TILESIZE;
-				float width = Float.parseFloat(properties.get("width").toString())/GameEnvironment.TILESIZE;
-				float height = Float.parseFloat(properties.get("height").toString())/GameEnvironment.TILESIZE;
-				Vector2 point = new Vector2(x + width/2 - 0.5f, y + height/2 - 0.5f);
 				Texture texture = null;
+				GameCharacterRenderer renderer = null;
 				if( properties.containsKey("spriteSheet") ) {
 					texture = new Texture(properties.get("spriteSheet").toString());
+					renderer = new DefaultPlayerCharacterRenderer(texture);
+				} else if ( properties.containsKey("sprite") ) {
+					texture = new Texture(properties.get("sprite").toString());
+					if( properties.containsKey("spriteID") && properties.containsKey("spriteSize") ) {
+						int spriteID = Integer.parseInt(properties.get("spriteID").toString());
+						int spriteSize = Integer.parseInt(properties.get("spriteSize").toString());
+						TextureRegion[][] splitTexture = TextureRegion.split(texture, spriteSize, spriteSize);
+						renderer = new StaticImageGameCharacterRenderer(splitTexture[spriteID/splitTexture[0].length][spriteID%splitTexture[0].length]);
+					} else {
+						renderer = new StaticImageGameCharacterRenderer(new TextureRegion(texture));
+					}
 				}
 				GameCharacterController controller = new GameCharacterDummyController(devGuy);
 				if( properties.containsKey("lockFacing") ) {
 					controller = new GameCharacterLockFacingController(Facing.valueOf(properties.get("lockFacing").toString().toUpperCase()));
 				}
-				final GameCharacter npc = new GameCharacter(object.getName(), new DefaultPlayerCharacterRenderer(texture), point, controller);
+				final GameCharacter npc = new GameCharacter(object.getName(), renderer, point, controller);
 				if( properties.containsKey("talkText") ) {
 
 					final String talkText = properties.get("talkText").toString();
+					final boolean doRestore = properties.containsKey("action") && properties.get("action").equals("restore");
 					npc.setInteractionListener(new GameCharacterInteractionListener() {
 						@Override
 						public boolean onInteracted(GameCharacter source) {
 							if( source == devGuy ) {
+								if( doRestore ) {
+									devGuyBookRoster.restore();
+								}
 								interactionSound.play();
 								gameEventsListener.showMessagePopup(npc.getName() + ":\n" + talkText);
+								
 								return true;
 							}
 							return false;
 						}
 					});
 				} else if( properties.containsKey("action") && properties.get("action").equals("fight")) {
+					int rewardMoney = 0;
+					if( properties.containsKey("reward") ) {
+						rewardMoney = Integer.parseInt(properties.get("reward").toString());
+					}
+					final int totalRewardMoney = rewardMoney;
+					String battleSprite = ("battle/trainerRed.png");
+					if( properties.containsKey("battleSprite") ) {
+						battleSprite = properties.get("battleSprite").toString();
+					}
+					final BookemonTrainer trainer = new BookemonTrainer(object.getName(), new TextureRegion(new Texture(battleSprite)));
+					String[] books = properties.get("books").toString().split(",");
+					for(String book: books) {
+						trainer.addBook(new Book(BookTypes.TYPES.get(Integer.parseInt(book))));
+					}
 					npc.setInteractionListener(new GameCharacterInteractionListener() {
 						@Override
 						public boolean onInteracted(GameCharacter source) {
+							if( usedObjects.contains(trainer.getName()) ) {
+								return true;
+							}
 							if( source == devGuy ) {
-								gameEventsListener.enterBattle();
+								if( devGuyBookRoster.isDefeated() ) {
+									interactionSound.play();
+									gameEventsListener.showMessagePopup("This person wants to fight you in a battle of knowledge, but you are not ready.\nCome back when you've got your books ready and at your side.");
+								} else {
+									gameEventsListener.enterBattle(trainer, new BookemonBattleResultListener() {
+										@Override
+										public void onWin() {
+											gameEventsListener.showMessagePopup("You were awarded $" + totalRewardMoney + " for defeating " + trainer.getName() + ".");
+											usedObjects.add(trainer.getName());
+										}
+										
+										@Override
+										public void onLose() {
+											gameEventsListener.showMessagePopup("You should go repair your books.");
+										}
+										
+										@Override
+										public void onFlee() {
+											
+										}
+									});
+								}
 								return true;
 							}
 							return false;
@@ -164,8 +236,31 @@ public final class GameEnvironment {
 					});
 				}
 				gameCharacters.add(npc);
+			} else if (typeProperty.equals("book")) {
+				GameCharacterController controller = new GameCharacterLockFacingController(Facing.DOWN);
+				if( properties.containsKey("lockFacing") ) {
+					controller = new GameCharacterLockFacingController(Facing.valueOf(properties.get("lockFacing").toString().toUpperCase()));
+				}
+				final BookType bookType = BookTypes.TYPES.get(Integer.parseInt(properties.get("bookId").toString()));
+				GameCharacterRenderer renderer = new StaticImageGameCharacterRenderer(bookType.getClosedIcon());
+				final GameCharacter book = new GameCharacter(object.getName(), renderer, point, controller);
+				book.setInteractionListener(new GameCharacterInteractionListener() {
+					@Override
+					public boolean onInteracted(GameCharacter source) {
+						if( devGuyBookRoster.addBook(new Book(bookType))) {
+							removedObjects.add(book.getName());
+							destroy(book);
+						}
+						return true;
+					}
+				});
+				gameCharacters.add(book);
 			}
 		}
+	}
+	
+	public void destroy(GameCharacter character) {
+		toDestroy.add(character);
 	}
 
 	public void enableControls() {
@@ -174,5 +269,9 @@ public final class GameEnvironment {
 	
 	public void disableControls() {
 		playerController.setEnabled(false);
+	}
+	
+	public BookemonTrainer getDevGuyBookRoster() {
+		return devGuyBookRoster;
 	}
 }

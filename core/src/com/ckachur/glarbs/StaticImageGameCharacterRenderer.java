@@ -14,7 +14,7 @@ public class StaticImageGameCharacterRenderer implements GameCharacterRenderer {
 
 	@Override
 	public void render(SpriteBatch batch, Vector2 point, Facing facing, boolean isMoving) {
-		batch.draw(textureRegion, point.x, point.y);
+		batch.draw(textureRegion, point.x, point.y, 1.0f, 1.0f);
 	}
 
 }
